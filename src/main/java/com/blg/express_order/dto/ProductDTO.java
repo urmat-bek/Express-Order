@@ -2,6 +2,7 @@ package com.blg.express_order.dto;
 
 public class ProductDTO {
 
+    private Long id;
     private String title;
     private String price;
     private String rating;
@@ -11,6 +12,7 @@ public class ProductDTO {
 
     public ProductDTO() {
     }
+
 
     public ProductDTO(String title, String price, String productUrl, String imageUrl, String storeName) {
         this.title = title;
@@ -28,6 +30,13 @@ public class ProductDTO {
         this.productUrl = productUrl;
         this.imageUrl = imageUrl;
         this.storeName = storeName;
+    }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
 
