@@ -47,13 +47,11 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<ERole> roles = new HashSet<>();
 
-
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user", orphanRemoval = true)
+    private List<CartProducts> cartProducts = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user", orphanRemoval = true)
-    private List<Cart> carts = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user", orphanRemoval = true)
-    private List<Favorite> favorites = new ArrayList<>();
+    private List<FavoriteProducts> favoriteProducts = new ArrayList<>();
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(updatable = false)
@@ -185,19 +183,27 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-    public List<Cart> getCarts() {
-        return carts;
-    }
-
-    public void setCarts(List<Cart> carts) {
-        this.carts = carts;
-    }
-
     public LocalDateTime getCreatedDate() {
         return createdDate;
     }
 
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public List<CartProducts> getCartProducts() {
+        return cartProducts;
+    }
+
+    public void setCartProducts(List<CartProducts> cartProducts) {
+        this.cartProducts = cartProducts;
+    }
+
+    public List<FavoriteProducts> getFavoriteProducts() {
+        return favoriteProducts;
+    }
+
+    public void setFavoriteProducts(List<FavoriteProducts> favoriteProducts) {
+        this.favoriteProducts = favoriteProducts;
     }
 }
