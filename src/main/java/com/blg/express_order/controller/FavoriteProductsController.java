@@ -2,11 +2,15 @@ package com.blg.express_order.controller;
 
 import com.blg.express_order.dto.ProductDTO;
 import com.blg.express_order.entity.CartProducts;
+import com.blg.express_order.entity.FavoriteProducts;
 import com.blg.express_order.exceptions.CartProductsErrorResponse;
 import com.blg.express_order.exceptions.CartProductsNotFoundException;
+import com.blg.express_order.exceptions.FavoriteProductNotFoundException;
+import com.blg.express_order.exceptions.FavoriteProductsErrorResponse;
 import com.blg.express_order.facade.CartProductsFacade;
+import com.blg.express_order.facade.FavoriteProductsFacade;
 import com.blg.express_order.payload.response.MessageResponse;
-import com.blg.express_order.service.CartProductsService;
+import com.blg.express_order.service.FavoriteProductsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,26 +21,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/cart")
-public class CartProductsController {
+@RequestMapping("/favorites")
+public class FavoriteProductsController {
     @Autowired
-    private CartProductsService cartProductsService;
+    private FavoriteProductsService favoriteProductsService;
     @Autowired
-    private CartProductsFacade productsFacade;
+    private FavoriteProductsFacade productsFacade;
 
     @PostMapping("/add")
     public ResponseEntity<Object> addProduct(@RequestBody ProductDTO productDTO, Principal principal){
-        CartProducts cartProducts = cartProductsService.createCartProducts(productDTO, principal);
-        ProductDTO addedProduct = productsFacade.cartProductsToProductDTO(cartProducts);
+        FavoriteProducts favoriteProducts = favoriteProductsService.createFavoriteProducts(productDTO, principal);
+        ProductDTO addedProduct = productsFacade.favoriteProductsToProductDTO(favoriteProducts);
 
         return new ResponseEntity<>(addedProduct, HttpStatus.OK);
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<ProductDTO>> getAllCartProductsForUser(Principal principal) {
-        List<ProductDTO> postDTOList = cartProductsService.getAllCartProductsForUser(principal)
+        List<ProductDTO> postDTOList = favoriteProductsService.getAllFavoriteProductsForUser(principal)
                 .stream()
-                .map(productsFacade::cartProductsToProductDTO)
+                .map(productsFacade::favoriteProductsToProductDTO)
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(postDTOList, HttpStatus.OK);
@@ -44,8 +48,8 @@ public class CartProductsController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getCartProductById(@PathVariable("id") Long id, Principal principal){
-        CartProducts cartProducts = cartProductsService.getCartProductsById(id, principal);
-        ProductDTO productDTO = productsFacade.cartProductsToProductDTO(cartProducts);
+        FavoriteProducts favoriteProducts = favoriteProductsService.getFavoriteProductsById(id, principal);
+        ProductDTO productDTO = productsFacade.favoriteProductsToProductDTO(favoriteProducts);
 
         return new ResponseEntity<>(productDTO, HttpStatus.OK);
 
@@ -54,17 +58,17 @@ public class CartProductsController {
 
     @DeleteMapping("/{cartProductsId}/delete")
     public ResponseEntity<MessageResponse> deleteCartProducts(@PathVariable("cartProductsId") String cartProductsId, Principal principal) {
-        cartProductsService.deleteCartProducts(Long.parseLong(cartProductsId), principal);
-        return new ResponseEntity<>(new MessageResponse("CartProducts was deleted"), HttpStatus.OK);
+        favoriteProductsService.deleteFavoriteProducts(Long.parseLong(cartProductsId), principal);
+        return new ResponseEntity<>(new MessageResponse("FavoriteProducts was deleted"), HttpStatus.OK);
     }
 
     @ExceptionHandler
-    private ResponseEntity<CartProductsErrorResponse> handleException(CartProductsNotFoundException e) {
-        CartProductsErrorResponse cartProductsErrorResponse = new CartProductsErrorResponse(
-                "CartProducts with this id wasn't found!",
+    private ResponseEntity<FavoriteProductsErrorResponse> handleException(FavoriteProductNotFoundException e) {
+        FavoriteProductsErrorResponse favoriteProductsErrorResponse = new FavoriteProductsErrorResponse(
+                "FavoriteProducts with this id wasn't found!",
                 System.currentTimeMillis()
         );
 
-        return new ResponseEntity<>(cartProductsErrorResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(favoriteProductsErrorResponse, HttpStatus.NOT_FOUND);
     }
 }
