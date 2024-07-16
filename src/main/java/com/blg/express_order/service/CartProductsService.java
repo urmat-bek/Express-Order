@@ -4,6 +4,7 @@ import com.blg.express_order.dto.ProductDTO;
 import com.blg.express_order.entity.CartProducts;
 
 import com.blg.express_order.entity.User;
+import com.blg.express_order.exceptions.CartProductsNotFoundException;
 import com.blg.express_order.repository.CartProductsRepository;
 import com.blg.express_order.repository.UserRepository;
 import org.slf4j.Logger;
@@ -11,8 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.List;
 
 @Service
 public class CartProductsService {
@@ -25,6 +28,12 @@ public class CartProductsService {
     public CartProductsService(CartProductsRepository cartProductsRepository, UserRepository userRepository) {
         this.cartProductsRepository = cartProductsRepository;
         this.userRepository = userRepository;
+    }
+
+    public CartProducts getCartProductsById(Long cartsProductId, Principal principal) {
+        User user = getUserByPrincipal(principal);
+        return cartProductsRepository.findCartProductsByIdAndUser(cartsProductId, user)
+                .orElseThrow(() -> new CartProductsNotFoundException("CartProduct cannot be found for username: {}" + user.getEmail()));
     }
 
     public CartProducts createCartProducts(ProductDTO productDTO, Principal principal){
@@ -43,6 +52,17 @@ public class CartProductsService {
         return cartProductsRepository.save(cartProducts);
     }
 
+    public List<CartProducts> getAllCartProductsForUser(Principal principal) {
+        User user = getUserByPrincipal(principal);
+        return cartProductsRepository.findAllByUser(user);
+    }
+
+    @Transactional
+    public void deleteCartProducts(Long postId, Principal principal) {
+        CartProducts cartProducts = getCartProductsById(postId, principal);
+        cartProductsRepository.delete(cartProducts);
+
+    }
 
 
     private User getUserByPrincipal(Principal principal) {
